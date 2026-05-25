@@ -1,0 +1,71 @@
+services:
+  new-api:
+    image: ${NEW_API_IMAGE:-calciumion/new-api:latest}
+    restart: unless-stopped
+    command: --log-dir /app/logs
+    expose:
+      - "3000"
+    environment:
+      - SERVICE_FQDN_NEWAPI_3000
+      - TZ=${TZ:-Asia/Shanghai}
+      - SQL_DSN=postgresql://${POSTGRES_USER:-newapi}:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/${POSTGRES_DB:-newapi}
+      - REDIS_CONN_STRING=redis://:${SERVICE_PASSWORD_REDIS}@redis:6379/0
+      - SESSION_SECRET=${SERVICE_PASSWORD_SESSION}
+      - CRYPTO_SECRET=${SERVICE_PASSWORD_CRYPTO}
+      - ERROR_LOG_ENABLED=${ERROR_LOG_ENABLED:-true}
+      - BATCH_UPDATE_ENABLED=${BATCH_UPDATE_ENABLED:-true}
+      - NODE_NAME=${NODE_NAME:-new-api-coolify-1}
+      - STREAMING_TIMEOUT=${STREAMING_TIMEOUT:-300}
+      - STREAM_SCANNER_MAX_BUFFER_MB=${STREAM_SCANNER_MAX_BUFFER_MB:-128}
+      - MAX_REQUEST_BODY_MB=${MAX_REQUEST_BODY_MB:-128}
+      - TRUSTED_REDIRECT_DOMAINS=${TRUSTED_REDIRECT_DOMAINS:-}
+    volumes:
+      - new_api_data:/data
+      - new_api_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -q '\"success\":true'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-newapi}
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_DB=${POSTGRES_DB:-newapi}
+    volumes:
+      - new_api_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["sh", "-c", "redis-server --appendonly yes --requirepass \"$${REDIS_PASSWORD}\""]
+    environment:
+      - REDIS_PASSWORD=${SERVICE_PASSWORD_REDIS}
+    volumes:
+      - new_api_redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  new_api_data:
+  new_api_logs:
+  new_api_postgres:
+  new_api_redis:
+
