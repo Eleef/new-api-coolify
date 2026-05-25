@@ -6,7 +6,7 @@ services:
     expose:
       - "3000"
     environment:
-      - SERVICE_FQDN_NEWAPI_3000
+      - SERVICE_FQDN_NEWAPI_3000=https://llmapi.1983070.xyz
       - TZ=${TZ:-Asia/Shanghai}
       - SQL_DSN=postgresql://${POSTGRES_USER:-newapi}:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/${POSTGRES_DB:-newapi}
       - REDIS_CONN_STRING=redis://:${SERVICE_PASSWORD_REDIS}@redis:6379/0
@@ -68,4 +68,3 @@ volumes:
   new_api_logs:
   new_api_postgres:
   new_api_redis:
-
