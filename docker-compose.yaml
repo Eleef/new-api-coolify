@@ -22,6 +22,19 @@ services:
     volumes:
       - new_api_data:/data
       - new_api_logs:/app/logs
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.newapi-redirect.redirectscheme.scheme=https
+      - traefik.http.routers.newapi-http.entrypoints=http
+      - traefik.http.routers.newapi-http.middlewares=newapi-redirect
+      - traefik.http.routers.newapi-http.rule=Host(`llmapi.1983070.xyz`) && PathPrefix(`/`)
+      - traefik.http.routers.newapi-http.service=newapi-service
+      - traefik.http.routers.newapi-https.entrypoints=https
+      - traefik.http.routers.newapi-https.rule=Host(`llmapi.1983070.xyz`) && PathPrefix(`/`)
+      - traefik.http.routers.newapi-https.service=newapi-service
+      - traefik.http.routers.newapi-https.tls=true
+      - traefik.http.routers.newapi-https.tls.certresolver=letsencrypt
+      - traefik.http.services.newapi-service.loadbalancer.server.port=3000
     depends_on:
       postgres:
         condition: service_healthy
