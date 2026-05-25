@@ -13,7 +13,7 @@
 
 ## 推荐部署方式
 
-1. 新建一个 GitHub 仓库，例如 `new-api-coolify`，把本目录内容作为仓库根目录提交。
+1. 新建一个 GitHub 仓库，例如 `new-api-coolify`，把本目录内容作为仓库根目录提交。当前部署仓库是 `https://github.com/Eleef/new-api-coolify`。
 2. 在 Coolify 中创建新资源，选择 GitHub 仓库，Build Pack 选择 **Docker Compose**。
 3. Compose 文件路径使用 `docker-compose.yaml`。
 4. 域名配置使用 `SERVICE_FQDN_NEWAPI_3000=https://llmapi.1983070.xyz`，或在 Coolify UI 中给 `new-api` 服务绑定域名并指向容器端口 `3000`。
@@ -25,7 +25,7 @@
 ## 关键配置
 
 - **公网域名**：`https://llmapi.1983070.xyz`。
-- **Cloudflare DNS**：已创建 proxied `A` 记录，origin 指向 Coolify 入口 `148.135.115.148`。
+- **Cloudflare DNS**：已创建 proxied `A` 记录，origin 指向 Coolify 入口 `192.129.135.37`。
 - **应用端口**：New API 监听 `3000`，Coolify 代理也应指向容器端口 `3000`。
 - **健康检查**：`GET /api/status`，期望 JSON 中 `success=true`。
 - **数据库**：默认使用 PostgreSQL 15，数据保存在 `new_api_postgres` 卷。
@@ -33,6 +33,17 @@
 - **应用数据和日志**：`/data` 和 `/app/logs` 分别挂载到 `new_api_data`、`new_api_logs`。
 - **会话密钥**：必须设置 `SESSION_SECRET`，模板默认来自 `SERVICE_PASSWORD_SESSION`。
 - **Redis 加密密钥**：使用 Redis 时必须设置 `CRYPTO_SECRET`，模板默认来自 `SERVICE_PASSWORD_CRYPTO`。
+
+## Current Deployment
+
+| 项目 | 值 |
+| --- | --- |
+| Coolify resource | `new-api-llmapi` |
+| Coolify UUID | `n7vl5q2hu7m6dns4ry2c4big` |
+| Coolify project | `My first project` / `production` |
+| Git source | `Eleef/new-api-coolify`, branch `main` |
+| Last verified | `2026-05-25` |
+| Verification | `GET /api/status` returns `success=true`; homepage returns `200` |
 
 ## 环境变量说明
 
