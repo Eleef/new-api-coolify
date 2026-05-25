@@ -4,7 +4,14 @@ on:
   push:
     branches:
       - main
+  schedule:
+    # 04:10 Asia/Shanghai, daily. GitHub Actions cron uses UTC.
+    - cron: "10 20 * * *"
   workflow_dispatch:
+
+concurrency:
+  group: deploy-coolify
+  cancel-in-progress: false
 
 jobs:
   deploy:
